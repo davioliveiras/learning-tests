@@ -13,9 +13,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id @default(uuid())
-  name String
-  email String
-  birthday DateTime
+model Musician {
+  id          String         @id @default(uuid())
+  name        String
+  fullName    String
+  email       String
+  birthday    DateTime
+  country     String
+  occupations String[]
+  description String
+  site        String?
+  bands       MemberOnBand[]
+}
+
+model MemberOnBand {  
+  Musician   Musician @relation(fields: [musicianId], references: [id])
+  musicianId String
+  Band       Band     @relation(fields: [bandId], references: [id])
+  bandId     String
+
+  @@id([musicianId, bandId])
+}
+
+model Band {
+  id        String         @id @default(uuid())
+  name      String
+  formedAt  Int
+  country   String
+  site      String?
+  Musicians MemberOnBand[]
 }

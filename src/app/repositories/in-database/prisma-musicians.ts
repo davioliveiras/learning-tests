@@ -1,10 +1,10 @@
-import { User } from "../../entities/user";
-import { UserRepository } from "../users-repositories";
+import { Musician } from "../../entities/musician";
+import { MusicianRepository } from "../musicians-repositories";
 import { prisma } from "../../libs/prisma";
 
 
-export class PrismaUsers implements UserRepository {
-    async create(user: User): Promise<void> {
+export class PrismaMusicians implements MusicianRepository {
+    async create(musician: Musician): Promise<void> {
         await prisma.user.create({
             data: {
                 name: user.getName(),
