@@ -7,57 +7,57 @@ export class Band {
     private site?: string
     private members: Musician[]
 
-    getName(){
+    getName() {
         return this.name
     }
 
-    getFormedAt(){
+    getFormedAt() {
         return this.formedAt
     }
 
-    getCoutry(){
+    getCoutry() {
         return this.country
     }
 
-    getSite(){
+    getSite() {
         return this.site
     }
 
-    getMembers(){
+    getMembers() {
         return this.members
     }
 
-    addMember(newMember: Musician){
+    addMember(newMember: Musician) {
         const m = this.members.find((alreadyMember) => alreadyMember.getName() == newMember.getName())
-        if(m)
+        if (m)
             throw new Error('Este membro já participa desta banda.')
         else
             this.members.push(newMember)
     }
 
-    removeMember(name: string){
+    removeMember(name: string) {
         const a: Musician[] = []
 
         const m = this.members.map((alreadyMember) => {
-            if(alreadyMember.getName() != name){
+            if (alreadyMember.getName() != name) {
                 a.push(alreadyMember)
             }
         })
 
-        if(m.length == a.length)
+        if (m.length == a.length)
             throw new Error('Esse membro não participa dessa banda.')
         else
             this.members = a
     }
-    
 
-    constructor(name: string, formedAt: number, country: string, site: string, members: Musician[]){
+
+    constructor(name: string, formedAt: number, country: string, site: string, members: Musician[]) {
         this.name = name
         this.formedAt = formedAt
         this.country = country
         this.site = site
         this.members = members
-        if (members.length < 2){
+        if (members.length < 2) {
             throw new Error('Uma banda deve ser criada com pelo menos 2 membros. Crie eles primeiro.')
         }
     }

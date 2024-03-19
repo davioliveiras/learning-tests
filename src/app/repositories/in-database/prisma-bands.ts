@@ -3,50 +3,58 @@ import { BandRepository } from "../bands-repositories";
 import { Musician } from "@/app/entities/musician";
 import { prisma } from "@/app/libs/prisma";
 
-export class InMemoryBands implements BandRepository{
+export class PrismaBands implements BandRepository {
 
+    async create(name: string,
+        formedAt: number,
+        country: string, site: string, memberName1: string, memberName2: string): Promise<void> {
 
-    async create(band: Band): Promise<void> {
-        await prisma.
+        const m1 = await prisma.musician.findFirst({
+            where: {
+                name: memberName1
+            }
+        })
+
+        const m2 = await prisma.musician.findFirst({
+            where: {
+                name: memberName2
+            }
+        })
+
+        if (m1 && m2) {
+            await prisma.band.create({
+                data: {
+                    name: name,
+                    formedAt: formedAt,
+                    country: country,
+                    site: site,
+                    Musicians: {
+                        create: [{ musicianId: m1.id }, { musicianId: m2.id }]
+                    }
+                },
+                include: {
+                    Musicians: true
+                }
+            })
+        }
     }
 
     async findByName(name: string): Promise<Band | null> {
-        const band = this.InMemoryDatabase.find((band) => { band.getName() == name })
-        if(band) return band
-        else return null
+        return null
     }
 
     async findByMusician(musicianName: string): Promise<Band[] | null> {
         const bands: Band[] = []
 
-        this.InMemoryDatabase.map((band) => {
-            const membersBand = band.getMembers()
-            membersBand.find((member) => { if(member.getName() == musicianName) bands.push(band)})
-        })
-        
-        return bands
+        return null
     }
 
     async addMusician(musician: Musician, bandName: string): Promise<Band | null> {
-        const b = this.InMemoryDatabase.find((band) => band.getName() == bandName)
-        if (b) {
-            b.addMember(musician)
-            this.InMemoryDatabase.find((band) => {band.getName() == bandName; band = b})
-            return b
-        } 
-        else {
-            console.log(b)
-            return null
-        }
+        return null
     }
 
     async removeMusician(musicianName: string, bandName: string): Promise<Band | null> {
-        const b = this.InMemoryDatabase.find((band) => band.getName() == bandName)        
-        if(b) {
-            b.removeMember(musicianName)
-            return b
-        }
-        else return null
+        return null
     }
-    
+
 }

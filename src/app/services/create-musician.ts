@@ -9,17 +9,25 @@ interface CreateMusicianRequest {
     country: string
     occupations: string[]
     description: string
-    site?: string
+    site: string | null
 }
 
 type CreateMusicianResponse = Musician
 
 export class CreateMusician {
 
-    constructor(private musicanRepository: MusicianRepository){}
+    private musicanRepository: MusicianRepository
 
-    async execute({name, fullName, email, birthday, country, occupations, 
-        description, site}: CreateMusicianRequest): Promise<CreateMusicianResponse> {
+    getRepository() {
+        return this.musicanRepository
+    }
+
+    constructor(repo: MusicianRepository) {
+        this.musicanRepository = repo
+    }
+
+    async execute({ name, fullName, email, birthday, country, occupations,
+        description, site }: CreateMusicianRequest): Promise<CreateMusicianResponse> {
 
         const musicianAlreadyCreated = await this.musicanRepository.findByName(name)
 

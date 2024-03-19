@@ -15,7 +15,7 @@ datasource db {
 
 model Musician {
   id          String         @id @default(uuid())
-  name        String
+  name        String         @unique
   fullName    String
   email       String
   birthday    DateTime
@@ -26,7 +26,7 @@ model Musician {
   bands       MemberOnBand[]
 }
 
-model MemberOnBand {  
+model MemberOnBand {
   Musician   Musician @relation(fields: [musicianId], references: [id])
   musicianId String
   Band       Band     @relation(fields: [bandId], references: [id])
@@ -37,7 +37,7 @@ model MemberOnBand {
 
 model Band {
   id        String         @id @default(uuid())
-  name      String
+  name      String         @unique
   formedAt  Int
   country   String
   site      String?
