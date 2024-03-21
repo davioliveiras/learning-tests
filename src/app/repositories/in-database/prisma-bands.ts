@@ -6,22 +6,7 @@ import { MusicianRepository } from "../musicians-repositories";
 
 export class PrismaBands implements BandRepository {
 
-    async create(name: string,
-        formedAt: number,
-        country: string, site: string, membersNames: string[]): Promise<Band> {
-
-        const musicians = []
-        for (let i = 0; i < membersNames.length; i++) {
-            musicians.push(await prisma.musician.findFirst({
-                where: {
-                    name: membersNames[i]
-                },
-                select: {
-                    id: true
-                }
-            })
-            )
-        }
+    async create(name: string, formedAt: number, country: string, site: string): Promise<Band> {
 
         const b = await prisma.band.create({
             data: {
@@ -32,82 +17,107 @@ export class PrismaBands implements BandRepository {
             }
         })
 
-        musicians.forEach(async (m) => {
-            await prisma.memberOnBand.create({
-                data: {
-                    musicianId: m.id,
-                    bandId: b.id
-                }
-            })
-        })
-
-        const band = new Band(b.name, b.formedAt, b.country, b.site, membersNames)
+        const band = new Band(b.name, b.formedAt, b.country, b.site)
         return band
     }
 
-    async findByName(name: string): Promise<Band | null> {
-        const b = await prisma.band.findFirst({
+    async findMusiciansToCreateBand(name: string): Promise<Musician | null> {
+        const m = await prisma.musician.findUnique({
             where: {
                 name: name
-            },
-            include: {
-                Musicians: true
             }
         })
 
+        if (m) {
+            const newM = new Musician(m.name, m.fullName, m.email, m.birthday,
+                m.country, m.occupations, m.description, m.site)
+            return newM
+        } else return null
+    }
+
+    async findBandByName(name: string): Promise<Band | null> {
+        const b = await prisma.band.findUnique({
+            where: {
+                name: name
+            }
+        })
         if (b) {
-            const ms = await prisma.musician.findMany({
-                include: {
-                    bands: {
-                        where: {
-                            bandId: b.id
-                        }
-                    }
-                }
-            })
-
-            const members: string[] = []
-            ms.forEach((m) => {
-                members.push(m.name)
-            })
-
-            const band = new Band(b.name, b.formedAt, b.country, b.site, members)
+            const band = new Band(b.name, b.formedAt, b.country, b.site)
             return band
         }
         return null
     }
 
-    async findByMusician(musicianName: string): Promise<Band[] | null> {
-        const musician = await prisma.musician.findFirst({
+    async findMembersBand(musicianName: string): Promise<Musician[]> {
+        const m = await prisma.band.findFirst({
             where: {
                 name: musicianName
             },
             include: {
-                bands: true
+                Musicians: {
+                    include: {
+                        Musician: true
+                    }
+                }
             }
         })
 
-        if (musician) {
-            const bands = await prisma.band.findMany({
-                include: {
-                    Musicians: {
-                        where: {
-                            musicianId: musician.id
+        const memberArray: Musician[] = []
+
+        if (m) {
+            const members = m.Musicians
+            members.forEach((m) => {
+                const newM = new Musician(m.Musician.name, m.Musician.fullName, m.Musician.email, m.Musician.birthday,
+                    m.Musician.country, m.Musician.occupations, m.Musician.description, m.Musician.site)
+                memberArray.push(newM)
+            })
+        }
+
+        return memberArray
+    }
+
+    async addMember(musicianName: string, bandName: string): Promise<void> {
+
+        await prisma.musician.update({
+            where: {
+                name: musicianName
+            },
+            data: {
+                bands: {
+                    create: {
+                        Band: {
+                            connect: {
+                                name: bandName
+                            }
                         }
                     }
                 }
-            })
-
-            if (bands) {
-                const bArray: Band[] = []
-                bands.forEach((item) => {
-                    const b = new Band(item.name, item.formedAt, item.country, item.site, [''])
-                    bArray.push(b)
-                })
-                return bArray
             }
-        }
+        })
+    }
 
-        return null
+    async removeMember(musicianName: string, bandName: string): Promise<void> {
+        const b = await prisma.band.findUnique({
+            where: {
+                name: bandName
+            }
+        })
+
+        const m = await prisma.musician.findUnique({
+            where: {
+                name: musicianName
+            }
+        })
+
+        if (m && b) {
+            await prisma.memberOnBand.delete({
+                where: {
+                    musicianId_bandId: {
+                        musicianId: m?.id,
+                        bandId: b?.id
+                    }
+                }
+            })
+        }
     }
 }

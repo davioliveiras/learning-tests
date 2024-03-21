@@ -1,12 +1,11 @@
 import { Musician } from "../../entities/musician";
 import { MusicianRepository } from "../musicians-repositories";
 import { prisma } from "../../libs/prisma";
-import { BandRepository } from "../bands-repositories";
+import { Band } from "@/app/entities/band";
 
 export class PrismaMusicians implements MusicianRepository {
 
     async create(musician: Musician): Promise<void> {
-
         await prisma.musician.create({
             data: {
                 name: musician.getName(),
@@ -21,7 +20,7 @@ export class PrismaMusicians implements MusicianRepository {
         })
     }
 
-    async findByName(name: string): Promise<Musician | null> {
+    async findMusicianByName(name: string): Promise<Musician | null> {
         const m = await prisma.musician.findFirst({
             where: {
                 name: name
@@ -30,68 +29,50 @@ export class PrismaMusicians implements MusicianRepository {
 
         if (m) {
             const musician = new Musician(m.name, m.fullName, m.email, m.birthday, m.country, m.occupations, m.description,
-                m.site ? m.site : null)
+                m.site)
             return musician
         }
         return null
     }
 
-    async addOccupation(name: string, occupation: string): Promise<void> {
-
+    async findMusicianBands(musicianName: string): Promise<Band[] | null> {
         const m = await prisma.musician.findUnique({
             where: {
-                name: name
+                name: musicianName
+            },
+            include: {
+                bands: {
+                    include: {
+                        Band: true
+                    }
+                }
             }
         })
 
         if (m) {
-            const musician = new Musician(m.name, m.fullName, m.email, m.birthday, m.country, m.occupations, m.description,
-                m.site ? m.site : null)
-
-            musician.addOccupation(occupation)
-
-            await prisma.musician.update({
-                where: {
-                    name: name
-                },
-                data: {
-                    occupations: musician.getOcupations()
-                }
+            const bands = m.bands
+            const arrayBands: Band[] = []
+            bands.forEach((b) => {
+                const newB = new Band(b.Band.name, b.Band.formedAt, b.Band.country, b.Band.site)
+                arrayBands.push(newB)
             })
+            return arrayBands
         }
 
+        return null
     }
 
-    // async editDescription(description: string, name: string): Promise<void> {
+    async addOccupation(name: string, occupation: string): Promise<void> {
 
-    //     const m = await prisma.musician.findUnique({
-    //         where: {
-    //             name: name
-    //         }
-    //     })
-    //     if (m) {
-    //         const musician = new Musician(m.name, m.fullName, m.email, m.birthday, m.country, m.occupations, m.description,
-    //             m.site ? m.site : undefined)
-
-    //         musician.setDescription(description)
-
-    //         await prisma.musician.update({
-    //             where: {
-    //                 name: name
-    //             },
-    //             data: musician.getDescription()
-    //         })
-    //     }
-    // }    
-
-    // async editSite(site: string, name: string): Promise<void> {
-    //     await prisma.musician.update({
-    //         where: {
-    //             name: name
-    //         },
-    //         data: {
-    //             site: site
-    //         }
-    //     })
-    // }
+        await prisma.musician.update({
+            where: {
+                name: name
+            },
+            data: {
+                occupations: {
+                    push: occupation
+                }
+            }
+        })
+    }
 }

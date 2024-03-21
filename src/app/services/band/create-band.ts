@@ -27,11 +27,11 @@ export class CreateBand {
         }
 
         let e = false
-        await b.members.forEach(async (item) => {
+        await Promise.all(b.members.map(async (item) => {
             const hasMusician = await this.repository.findMusiciansToCreateBand(item)
             if (!hasMusician)
                 e = true
-        })
+        }))
 
         if (e) {
             throw new Error('A banda não foi criada. Pelo menos um dos músicos não foi encontrado.')

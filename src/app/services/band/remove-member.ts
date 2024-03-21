@@ -18,12 +18,12 @@ export class RemoveMemberService {
         // }
 
         let result: string = ''
-        await members.find(async (item) => {
+        await Promise.all(members.map(async (item) => {
             if (item.getName() == musicianName) {
                 await this.bandRepo.removeMember(musicianName, bandName)
                 result = 'Removido.'
             }
-        })
+        }))
 
         if (result == 'Removido.') {
             return result

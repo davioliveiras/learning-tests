@@ -12,8 +12,6 @@ const bandService = new FindBandByName(bandRepository)
 describe('find a band', () => {
     it('should be able to find a band', async () => {
 
-        // console.log(await bandService.execute({ name: 'Angra' }))
-
         expect(bandService.execute({ name: 'Angra' })).resolves.toEqual({
             band: expect.any(Band),
             musicians: expect.any(Array<Musician>)
