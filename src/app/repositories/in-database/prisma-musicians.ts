@@ -1,9 +1,10 @@
 import { Musician } from "../../entities/musician";
 import { MusicianRepository } from "../musicians-repositories";
 import { prisma } from "../../libs/prisma";
-
+import { BandRepository } from "../bands-repositories";
 
 export class PrismaMusicians implements MusicianRepository {
+
     async create(musician: Musician): Promise<void> {
 
         await prisma.musician.create({

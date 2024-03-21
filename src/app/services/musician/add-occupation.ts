@@ -1,20 +1,18 @@
-import { Musician } from "../entities/musician"
-import { MusicianRepository } from "../repositories/musicians-repositories"
+import { Musician } from "../../entities/musician"
+import { MusicianRepository } from "../../repositories/musicians-repositories"
 
 interface AddOccupationRequest {
     name: string
     occupation: string
 }
 
-type AddOccupationResponse = void
-
 export class AddOccupation {
 
     constructor(private musicanRepository: MusicianRepository) { }
 
-    async execute({ name, occupation }: AddOccupationRequest): Promise<AddOccupationResponse> {
+    async execute({ name, occupation }: AddOccupationRequest): Promise<void> {
 
-        const m = await this.musicanRepository.findByName(name)
+        const m = await this.musicanRepository.findMusicianByName(name)
         if (!m) throw new Error('A ocupação não foi adicionada pois esse músico não foi encontrado')
 
         m.getOcupations().map((musicianOccupations) => {

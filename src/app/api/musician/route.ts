@@ -1,9 +1,9 @@
 import { PrismaMusicians } from '@/app/repositories/in-database/prisma-musicians';
 import { NextResponse, NextRequest } from 'next/server';
 import { z } from 'zod'
-import { CreateMusician } from '../../services/create-musician'
-import { FindMusician } from '@/app/services/find-musician';
-import { AddOccupation } from '@/app/services/add-occupation';
+import { CreateMusician } from '../../services/musician/create-musician'
+import { FindMusician } from '@/app/services/musician/find-musician';
+import { AddOccupation } from '@/app/services/musician/add-occupation';
 
 const prismaRepository = new PrismaMusicians()
 

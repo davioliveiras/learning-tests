@@ -1,15 +1,17 @@
-import { Band } from "../entities/band";
 import { Musician } from "../entities/musician";
+import { Band } from "../entities/band";
 
 export interface BandRepository {
-    create(name: string,
-        formedAt: number,
-        country: string,
-        site: string, memberName1: string, memberName2: string): Promise<void>
 
-    findByName(name: string): Promise<Band | null>
-    findByMusician(musicianName: string): Promise<Band[] | null>
+    create(name: string, formedAt: number, country: string, site: string): Promise<Band>
 
-    addMusician(musician: Musician, bandName: string): Promise<Band | null>
-    removeMusician(musicianName: string, bandName: string): Promise<Band | null>
+    findMusiciansToCreateBand(name: string): Promise<Musician | null>
+
+    findBandByName(name: string): Promise<Band | null>
+
+    findMembersBand(name: string): Promise<Musician[]>
+
+    addMember(musicianName: string, bandName: string): Promise<void>
+
+    removeMember(musicianName: string, bandName: string): Promise<void>
 }

@@ -1,40 +1,44 @@
+import { InMemoryDatabase } from '@/app/tests/in-memory-structure';
 import { Musician } from '../../entities/musician'
 import { MusicianRepository } from '../musicians-repositories';
+import { Band } from '@/app/entities/band';
+import { angra, felipe, kiko, kikoInAngra, rafael, rafaelInAngra } from '../../libs/data-tests';
 
 export class InMemoryMusicians implements MusicianRepository {
-    public musicians: Musician[] = []
+    public InMemoryDatabase: InMemoryDatabase = { bands: [angra], musicians: [kiko, rafael, felipe], members: [kikoInAngra, rafaelInAngra] }
 
     async create(musician: Musician): Promise<void> {
-        this.musicians.push(musician)
+        this.InMemoryDatabase.musicians.push(musician)
     }
 
-    async findByName(name: string): Promise<Musician | null> {
-        const musicianAlreadyCreated = this.musicians.find((musician) => musician.getName() == name)
+    async findMusicianByName(musicianName: string): Promise<Musician | null> {
+        const musicianAlreadyCreated = this.InMemoryDatabase.musicians.find((musician) => musician.getName() == musicianName)
         if (musicianAlreadyCreated)
             return musicianAlreadyCreated
         else return null
     }
 
-    async addOccupation(name: string, newOccupation: string): Promise<void> {
-        const m = this.musicians.map((musician) => {
-            if (musician.getName() == name) musician.addOccupation(newOccupation)
-            return
+    async findMusicianBands(musicianName: string): Promise<Band[] | null> {
+        const bands: Band[] = []
+
+        this.InMemoryDatabase.members.map((members) => {
+            if (members.getMusicianName() == musicianName) {
+                const musicianBand = this.InMemoryDatabase.bands.find((band) => band.getName() == members.getBandName())
+                if (musicianBand)
+                    bands.push(musicianBand)
+            }
         })
+
+        if (bands.length == 0)
+            return null
+        else
+            return bands
     }
 
-    // async editSite(site: string, name: string): Promise<void> {
-    //     const m = this.musicians.find((musician) => musician.getName() == name)
-    //     if (m) {
-    //         m.setSite(site)
-    //         this.musicians.find((musician) => { if (musician.getName() == name) musician = m })
-    //     }
-    // }
-
-    // async editDescription(description: string, name: string): Promise<void> {
-    //     const m = this.musicians.find((musician) => musician.getName() == name)
-    //     if (m) {
-    //         m.setDescription(description)
-    //         this.musicians.find((musician) => { if (musician.getName() == name) musician = m })
-    //     }
-    // }
+    async addOccupation(musicianName: string, newOccupation: string): Promise<void> {
+        this.InMemoryDatabase.musicians.find((musician) => {
+            if (musician.getName() == musicianName)
+                musician.addOccupation(newOccupation)
+        })
+    }
 }
