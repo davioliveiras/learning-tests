@@ -1,0 +1,8 @@
+{
+  "name": "vitest-environment-prisma",
+  "version": "1.0.0",
+  "description": "",
+  "main": "prisma-env-test.ts",
+  "author": "",
+  "license": "ISC"
+}
